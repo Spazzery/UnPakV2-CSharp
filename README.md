@@ -1,6 +1,7 @@
 # UnPakV2-CSharp
 
-# UnPakV2
+I initially wrote this in Python, but switched over to C#, hence the name.
+
 An unpacker for PAK files on PS Vita
 
 There already exists an UnPAK reposiory for unpacking PAK files on PS Vita, simply called UnPAK. However, that only worked for certain versions of PAK archives.
