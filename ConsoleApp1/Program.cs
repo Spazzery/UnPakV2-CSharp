@@ -136,9 +136,9 @@ class Program
         Console.WriteLine("UnPakV2 - Unpacker/Repacker for CatSystem2 on PS Vita.");
         Console.WriteLine("It's for an updated version of the PAK archive (hence the name).");
         Console.WriteLine("Available commands:");
-        Console.WriteLine("ls - Lists input archive's contents in the console");
-        Console.WriteLine("unpack - Extracts contents of the input archive");
-        Console.WriteLine("repack - Repacks input files into a new archive, based off of the original archive");
+        Console.WriteLine("ls - Lists input archive's contents in the console. Usage: 'ls <input Pak file>");
+        Console.WriteLine("unpack - Extracts contents of the input archive. Usage: 'unpack <input Pak file> [output path]'");
+        Console.WriteLine("repack - Creates a new Pak archive, based off of the original archive. Usage: 'repack <input folder> <input Pak to copy from> [new archive name]'");
         Console.WriteLine("help - Shows this help/info page");
         Console.WriteLine("----------");
     }

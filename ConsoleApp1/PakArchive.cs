@@ -127,11 +127,12 @@ public class PakArchive
     {
         using FileStream pakFile = new FileStream(newFileName, FileMode.Create);
         using BinaryWriter bw = new BinaryWriter(pakFile);
-        string[] inputFiles = Directory.GetFiles(inFolder, "*", SearchOption.TopDirectoryOnly);
+        string[] inputFiles = GetInputFilesInCorrectOrderFrom(Directory.GetFiles(inFolder, "*", SearchOption.TopDirectoryOnly));  // sorts based off input archive
         
         if (inputFiles.Length != _entryCount)
             throw new Exception("Input folder contains less/more files than in the original archive.");
         
+        // Add header values to pakFile
         bw.Write(_firstFileOffset);  // copied from input archive, as all other header values
         bw.Write(_entryCount);
         bw.Write(_versionNumber);
@@ -144,7 +145,7 @@ public class PakArchive
         int fileOffset = _firstFileOffset;
         for (int i = 0; i < _entryCount; i++)
         {
-            string filename = inputFiles[i];
+            string filename = inputFiles[i];  // not merely a name, but a path
             byte[] rawBinary = File.ReadAllBytes(filename);
 
             PakEntryFile entry = new PakEntryFile(i, fileOffset, rawBinary.Length, filename);
@@ -176,6 +177,22 @@ public class PakArchive
         int size = to - from;
         _fileStream.Seek(from, SeekOrigin.Begin);
         return _fileReader.ReadBytes(size);
+    }
+    
+    private string[] GetInputFilesInCorrectOrderFrom(string[] inputFiles)
+    {
+        List<string> result = new List<string>();
+        
+        foreach (string inputArchiveEntryName in _nameTable)
+        {
+            foreach (string inputFile in inputFiles)
+            {
+                if (inputArchiveEntryName == Path.GetFileName(inputFile))  // inputFile is a path technically
+                    result.Add(inputFile);
+            }
+        }
+
+        return result.ToArray();
     }
 
     public void Dispose()
