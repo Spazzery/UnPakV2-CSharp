@@ -40,8 +40,8 @@ Repeat that [File count] times
 
 Name | Size | Comment
 --- | --- | ---
-File offset | 4 bytes | Offset for file inside the archive (each file starts with 0x4B (in the script archive, at least))
-File size | 4 bytes | If you add file offset + file size. You get end of file offset. Then there are null bytes until the start of a new file, a new 4B) (not sure if null bytes are part of file or just archive padding. probably first though)
+File offset | 4 bytes | Offset for file inside the archive
+File size | 4 bytes | File's size
 
 ## Nametable
 ##### n bytes (each)
