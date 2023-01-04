@@ -27,12 +27,11 @@ The header of the PAK file is
 
 Name | Size | Comment
 --- | --- | ---
-??? | 4 bytes | Looks like offset for files (only in Grisaia Side Episode and Hatsumira though)
+First file offset | 4 bytes | Offset where the first file is in the archive (only in Grisaia Side Episode and Hatsumira though)
 File count | 4 Bytes | Amount of files inside archive
 Version number? | 4 bytes | Value is 0x01, so probably means version number
 ??? | 4 bytes | Some unknown value 0x200 (512 in decimal)
 Offset where the nameTable begins | 4 bytes | nameTable contains file names inside archive
-First file offset | 4 bytes | Offset where the first file is in the archive
 
 
 ## File Info
