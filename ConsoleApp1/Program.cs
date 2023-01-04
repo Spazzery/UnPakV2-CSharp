@@ -88,7 +88,7 @@ class Program
         if (args.Length is 2 or 3)  // args.Length == 2 || args.Length == 3
         {
             string inFile = args[1];
-            string outPath = args.Length == 3 ? args[2] : "../out";  // ternary for choosing an outpath or using a default outpath
+            string outPath = args.Length == 3 ? args[2] : "out";  // ternary for choosing an outpath or using a default outpath
             
             if (!Directory.Exists(Path.ChangeExtension(outPath, "")))
                 Directory.CreateDirectory(Path.ChangeExtension(outPath, ""));
@@ -104,7 +104,25 @@ class Program
 
     public static void RepackContents(string[] args)
     {
-        throw new NotImplementedException();
+        if (args.Length is 3 or 4)
+        {   
+            string inFolder = args[1];
+            string inPak = args[2];
+            string newFileName = args.Length == 4 ? args[3] : "NewPak.PAK";  // if filename isn't given
+
+            if (!File.GetAttributes(inFolder).HasFlag(FileAttributes.Directory)) // if inputFolder is actually a file
+                throw new ArgumentException("Input folder must be a folder, not a file.");
+
+            if (!newFileName.Contains(".PAK"))
+                newFileName += ".PAK";
+            
+            _archive = PakArchive.LoadArchive(inPak);  // load in the original PAK file we want to copy some info from
+            _archive.CreateNew(inFolder, newFileName);
+        }
+        else
+        {
+            Console.WriteLine("Invalid arguments!");
+        }
     }
 
     public static void Exit(string[] args)

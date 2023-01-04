@@ -7,18 +7,19 @@ public class PakArchive
     private Stream _fileStream;
     private BinaryReader _fileReader;
 
-    public List<PakEntryFile>? Entries { get; set; }
+    private List<PakEntryFile>? Entries { get; set; }
+    private List<PakEntryFile>? NewEntries { get; set; }
     private Func<int, PakEntryFile>? ReadEntryFunc;  // contains a function that is used to create PakEntryFile objects depending on mode
     
-    public List<string> _nameTable = new List<string>();  // contains entry names
+    private List<string> _nameTable = new List<string>();  // contains entry names
     
     private int _fileInfoTableOffset = 0x14;
 
     // In the order of the header (first 5)
-    private Int32 _unKnown1;
+    private Int32 _firstFileOffset;
     private Int32 _entryCount;
     private Int32 _versionNumber;
-    private Int32 _unKnown2;
+    private Int32 _unKnown1;
     private Int32 _nameTableOffset;
 
     public PakArchive(Stream stream)
@@ -33,7 +34,7 @@ public class PakArchive
         if (string.IsNullOrEmpty(path))
             throw new ArgumentNullException(nameof(path));
         
-        FileStream fileStream = File.Open(path, FileMode.Open);
+        FileStream fileStream = File.Open(path, FileMode.Open);  // note to self: don't use 'using' here - will make it unable to be read later
         
         return new PakArchive(fileStream);
     }
@@ -42,10 +43,10 @@ public class PakArchive
     private void ReadEntries()
     {
         Entries = new List<PakEntryFile>();
-        _unKnown1 = _fileReader.ReadInt32(); // already reads in little endian
+        _firstFileOffset = _fileReader.ReadInt32(); // already reads in little endian
         _entryCount = _fileReader.ReadInt32();
         _versionNumber = _fileReader.ReadInt32();
-        _unKnown2 = _fileReader.ReadInt32();
+        _unKnown1 = _fileReader.ReadInt32();
         _nameTableOffset = _fileReader.ReadInt32();
 
         ReadEntryFunc = ReadEntryName;  // having this gives option to have different functions for different modes (In unPAK there's 2 modes: ID or Name)
@@ -110,7 +111,7 @@ public class PakArchive
 
     private void WriteToFile(PakEntryFile entry, byte[] data, string outPath)
     {
-        using FileStream outFile = new FileStream(Path.ChangeExtension(outPath, "") + "\\" + entry.Name, FileMode.Create);
+        using FileStream outFile = new FileStream(Path.ChangeExtension(outPath, "") + Path.DirectorySeparatorChar + entry.Name, FileMode.Create);
         using BinaryWriter bw = new BinaryWriter(outFile);
         bw.Write(data);
         Console.WriteLine($"Extracted file: {entry.Name}");
@@ -121,11 +122,60 @@ public class PakArchive
         _fileStream.Seek(entry.Offset, SeekOrigin.Begin);
         return _fileReader.ReadBytes(entry.Size);
     }
-
-
-    public static void Repack(string inPath, string outPath)
+    
+    public void CreateNew(string inFolder, string newFileName)
     {
-        throw new NotImplementedException();
+        using FileStream pakFile = new FileStream(newFileName, FileMode.Create);
+        using BinaryWriter bw = new BinaryWriter(pakFile);
+        string[] inputFiles = Directory.GetFiles(inFolder, "*", SearchOption.TopDirectoryOnly);
+        
+        if (inputFiles.Length != _entryCount)
+            throw new Exception("Input folder contains less/more files than in the original archive.");
+        
+        bw.Write(_firstFileOffset);  // copied from input archive, as all other header values
+        bw.Write(_entryCount);
+        bw.Write(_versionNumber);
+        bw.Write(_unKnown1);
+        bw.Write(_nameTableOffset);  // Could also use 0x14 + _entryCount * 8;
+        
+        // Calculating offsets for input files
+        NewEntries = new List<PakEntryFile>();
+        
+        int fileOffset = _firstFileOffset;
+        for (int i = 0; i < _entryCount; i++)
+        {
+            string filename = inputFiles[i];
+            byte[] rawBinary = File.ReadAllBytes(filename);
+
+            PakEntryFile entry = new PakEntryFile(i, fileOffset, rawBinary.Length, filename);
+            entry.RawBinary = rawBinary;
+            NewEntries.Add(entry);
+            fileOffset += rawBinary.Length;
+        }
+        
+        // Add file info to pakFile
+        foreach (PakEntryFile entry in NewEntries!)
+        {
+            bw.Write(entry.Offset);
+            bw.Write(entry.Size);
+        }
+        
+        // Add nameTable to pakFile
+        byte[] nameTable = CopyBytes(_nameTableOffset, _firstFileOffset); // copied from input archive
+        bw.Write(nameTable);
+        
+        // Add raw binary to pakFile
+        foreach (PakEntryFile entry in NewEntries!)
+            bw.Write(entry.RawBinary!);
+
+        Console.WriteLine("Repack finished!");
+    }
+
+    private byte[] CopyBytes(int from, int to)
+    {
+        int size = to - from;
+        _fileStream.Seek(from, SeekOrigin.Begin);
+        return _fileReader.ReadBytes(size);
     }
 
     public void Dispose()

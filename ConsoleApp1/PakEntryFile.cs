@@ -6,12 +6,12 @@ public class PakEntryFile
     public string Name { get; }
     public int Offset { get; }
     public int Size { get; }
-    // public int RawBinary { get; set; }
+    public byte[]? RawBinary { get; set; }
 
     public PakEntryFile(int id, int offset, int size, string name)
     {
         Id = id;
-        Offset = id;
+        Offset = offset;
         Size = size;
         Name = name;
     }
