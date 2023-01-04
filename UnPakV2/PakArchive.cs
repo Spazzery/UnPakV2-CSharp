@@ -141,8 +141,8 @@ public class PakArchive
         
         // Calculating offsets for input files
         NewEntries = new List<PakEntryFile>();
-        
         int fileOffset = _firstFileOffset;
+        
         for (int i = 0; i < _entryCount; i++)
         {
             string filename = inputFiles[i];  // not merely a name, but a path

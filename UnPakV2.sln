@@ -1,6 +1,6 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConsoleApp1", "ConsoleApp1\ConsoleApp1.csproj", "{4C294DFD-1E01-4E7B-A1BB-6146057DC80D}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UnPakV2", "UnPakV2\UnPakV2.csproj", "{4C294DFD-1E01-4E7B-A1BB-6146057DC80D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
