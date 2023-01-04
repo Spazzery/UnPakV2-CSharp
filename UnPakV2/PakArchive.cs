@@ -167,7 +167,10 @@ public class PakArchive
         
         // Add raw binary to pakFile
         foreach (PakEntryFile entry in NewEntries!)
+        {
+            Console.WriteLine($"Packing file: {Path.GetFileName(entry.Name)}");
             bw.Write(entry.RawBinary!);
+        }
 
         Console.WriteLine("Repack finished!");
     }
@@ -191,7 +194,7 @@ public class PakArchive
                     result.Add(inputFile);
             }
         }
-
+        
         return result.ToArray();
     }
 
